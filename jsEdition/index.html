@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="amfRewrite.js"></script>
+    <script src="decoder.min.js"></script>
+</head>
+<body>
+amfRewrite encoder(json->nncc):<input type="file" id="file_input1"  />
+    <script>
+        function fileSelect_encoder(e) {
+            const files = this.files;
+            for(let i = 0, len = files.length; i < len; i++) {
+                const file = files[i];
+
+                console.log("file",file);
+                const reader = new FileReader();
+                reader.readAsText(file,'utf-8');
+                reader.onload = function () {
+                    const buffer = amfRewrite.encoder(reader.result);
+                    down(new Blob([buffer]),new Date().getTime()+"_encoder.nncc");
+                    console.log(buffer)
+
+                    // const obj = amfRewrite.decoder(buffer);
+                    // console.log(obj);
+                }
+            }
+        }
+
+        function down(data,fileName) {
+            if (!data) {
+                return
+            }
+            let url = window.URL.createObjectURL(new Blob([data]));
+            let link = document.createElement('a');
+            link.style.display = 'none';
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        document.getElementById('file_input1').onchange = fileSelect_encoder;
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="amfRewrite.js"></script>
+    <script src="decoder.min.js"></script>
+</head>
+<body>
+    (decoder->decode next amfRewrite->encoder)<input type="file" id="file_input"  />
+    <script>
+        function fileSelect(e) {
+            const files = this.files;
+            for(let i = 0, len = files.length; i < len; i++) {
+                const file = files[i];
+
+                console.log("file",file);
+                const reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onload = function () {
+
+                    // const obj = amfRewrite.decoder(reader.result);
+                    const obj = decoder.amfDecoder.decode(reader.result);
+                    console.log(obj);
+
+
+                    const buffer = amfRewrite.encoder(JSON.stringify(obj));
+                    down(new Blob([buffer]),new Date().getTime()+".nncc");
+                    console.log(buffer);
+
+
+                }
+            }
+        }
+        function down(data,fileName) {
+            if (!data) {
+                return
+            }
+            let url = window.URL.createObjectURL(new Blob([data]));
+            let link = document.createElement('a');
+            link.style.display = 'none';
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        }
+
+        document.getElementById('file_input').onchange = fileSelect;
+    </script>
+</body>
+</html>
